@@ -34,10 +34,10 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         // This line is now able to find your custom teal color scheme.
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text('mtrack'),
+        title: const Text('MaxTrack')
       ),
       body: const Center(
-        child: Text('Hello, mtrack!'),
+        child: Text('Hello, User')
       ),
     );
   }

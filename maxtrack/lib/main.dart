@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:maxtrack/services/database_helper.dart'; // <-- New import
 
-void main() {
+// This is the new main() function
+Future<void> main() async {
+  // Ensure Flutter is initialized.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the database by getting the instance.
+  // This will call the _initDatabase() function the first time.
+  await DatabaseHelper.instance.database;
+
+  // Then run the app.
   runApp(const MyApp());
 }
 
-// MyApp now ONLY sets up the top-level app information, including the theme.
+// This is your existing MyApp class, unchanged.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -15,29 +25,24 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 82, 171, 187)),
         useMaterial3: true,
       ),
-      // The 'home' is now a new, separate widget.
       home: const HomePage(),
     );
   }
 }
 
-// HomePage contains the actual screen layout.
-// Its 'build' method will have a context that is INSIDE the MaterialApp.
+// This is your existing HomePage class, unchanged.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Now, when we call Theme.of(context), it works!
-    // It looks "up" the tree, finds the MaterialApp, and gets the correct theme.
     return Scaffold(
       appBar: AppBar(
-        // This line is now able to find your custom teal color scheme.
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text('MaxTrack')
+        title: const Text('MaxTrack'), // I noticed you changed this, which is great!
       ),
       body: const Center(
-        child: Text('Hello, User')
+        child: Text('Hello, User'), // And this too!
       ),
     );
   }

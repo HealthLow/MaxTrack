@@ -45,6 +45,7 @@ class DatabaseHelper {
         carbs_per_100g REAL NOT NULL,
         fat_per_100g REAL NOT NULL,
         image_path TEXT
+        is_ingredient INTEGER NOT NULL DEFAULT 0
       )
     ''');
 

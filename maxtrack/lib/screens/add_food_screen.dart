@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:maxtrack/services/database_helper.dart';
 
-final logger = Logger();
+final _logger = Logger();
 
 class AddFoodScreen extends StatefulWidget {
   const AddFoodScreen({super.key});
@@ -12,7 +12,7 @@ class AddFoodScreen extends StatefulWidget {
 }
 
 class _AddFoodScreenState extends State<AddFoodScreen> {
-  // A GlobalKey for our form to uniquely identify it.
+  // A GlobalKey for the form to uniquely identify it.
   final _formKey = GlobalKey<FormState>();
 
   // Create a text controller for each field.
@@ -22,54 +22,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final _carbsController = TextEditingController();
   final _fatController = TextEditingController();
 
- Future<void> _showConfirmationDialog({required bool isIngredient}) async {
-    // This is a good practice to ensure we don't try to show a dialog
-    // if the screen is no longer visible.
-    if (!mounted) return;
-
-    final itemType = isIngredient ? 'Ingredient' : 'Food';
-    final message = '${_nameController.text} saved successfully as an $itemType!';
-
-    // This is the Flutter function to show a dialog.
-    await showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Success!'),
-          content: Text(message),
-          actions: <Widget>[
-            // --- The "Add More" Button ---
-            TextButton(
-              child: const Text('Add More'),
-              onPressed: () {
-                // Clear all the text fields for the next entry.
-                _nameController.clear();
-                _caloriesController.clear();
-                _proteinController.clear();
-                _carbsController.clear();
-                _fatController.clear();
-
-                // Close just the dialog.
-                Navigator.of(dialogContext).pop();
-              },
-            ),
-            // --- The "Back" Button ---
-            TextButton(
-              child: const Text('Back'),
-              onPressed: () {
-                // Close the dialog AND the AddFoodScreen to go back to the main menu.
-                // We use Navigator.of(context).pop() twice.
-                Navigator.of(dialogContext).pop(); // Close the dialog
-                Navigator.of(context).pop();      // Close the AddFoodScreen
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // This is a good practice to clean up the controllers when the screen is disposed.
+  //good practice to clean up the controllers when the screen is disposed.
   @override
   void dispose() {
     _nameController.dispose();
@@ -79,45 +32,67 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     _fatController.dispose();
     super.dispose();
   }
- Future<void> _saveFoodItem({required bool isIngredient}) async {
-    // First, get a reference to the database.
-    
+
+  Future<void> _saveFoodItem({required bool isIngredient}) async {
+    // First, validate the form.
     final isValid = _formKey.currentState!.validate();
-     // If any validator returns an error message, 'validate()' returns false.
     if (!isValid) {
-      logger.w('Form is not valid. Aborting save.');
+      _logger.w('Form is not valid. Aborting save.');
       return; // Stop the function here if the form is not valid.
     }
 
+    // If valid, proceed to save.
     final db = await DatabaseHelper.instance.database;
-
-    // Create a Map (which is like a dictionary or JSON object) of the data.
-    // The keys MUST match the column names in your database table exactly.
     final foodData = {
       'name': _nameController.text,
       'calories_per_100g': double.tryParse(_caloriesController.text) ?? 0.0,
       'protein_per_100g': double.tryParse(_proteinController.text) ?? 0.0,
       'carbs_per_100g': double.tryParse(_carbsController.text) ?? 0.0,
       'fat_per_100g': double.tryParse(_fatController.text) ?? 0.0,
-      'is_ingredient': isIngredient ? 1 : 0, // Here is where we use the flag!
-      // 'image_path' will be null for now.
+      'is_ingredient': isIngredient ? 1 : 0,
     };
 
-    // Use the 'insert' method from sqflite.
-    // This returns the 'id' of the new row that was inserted.
     final id = await db.insert('food_items', foodData);
+    _logger.i('Inserted food item with ID: $id and data: $foodData');
 
-    logger.i('Inserted food item with ID: $id and data: $foodData');
+    //we now call our dialog function.
+    await _showConfirmationDialog(isIngredient: isIngredient);
+  }
 
-    // Optional: Show a confirmation message to the user
-    if (mounted) { // 'mounted' checks if the screen is still visible
-    // Determine the message based on the 'isIngredient' flag.
-      final itemType = isIngredient ? 'Ingredient' : 'Food';
-      final message = '${_nameController.text} saved successfully as an $itemType!';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    }
+  Future<void> _showConfirmationDialog({required bool isIngredient}) async {
+    if (!mounted) return;
+    final itemType = isIngredient ? 'Ingredient' : 'Food';
+    final message = '${_nameController.text} saved successfully as an $itemType!';
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Success!'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Add More'),
+              onPressed: () {
+                _nameController.clear();
+                _caloriesController.clear();
+                _proteinController.clear();
+                _carbsController.clear();
+                _fatController.clear();
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Back'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -126,15 +101,12 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       appBar: AppBar(
         title: const Text('Add New Food'),
       ),
-      // We use a ListView to prevent the screen from overflowing
-      // if the keyboard pops up and takes up space.
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           Form(
             key: _formKey,
             child: Column(
-              // This makes the form fields appear vertically.
               children: [
                 TextFormField(
                   controller: _nameController,
@@ -142,30 +114,29 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     labelText: 'Food Name',
                     border: OutlineInputBorder(),
                   ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                       return 'Please enter a food name'; // The error message
-                      }
-                     return null; // The input is valid
-                    },
-                  // We can add validation later.
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a food name';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 16), // A little space between fields
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _caloriesController,
                   decoration: const InputDecoration(
                     labelText: 'Calories (per 100g)',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.number, // Show a number keyboard
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter calories';
                     }
-                   if (double.tryParse(value) == null) {
+                    if (double.tryParse(value) == null) {
                       return 'Please enter a valid number';
-                   }
-                   return null;
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(height: 16),
@@ -195,43 +166,40 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                   ),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 24), // More space before the button
+                const SizedBox(height: 24),
                 Row(
-                      children: [
-                        // We use an Expanded widget to make each button take up
-                        // half of the available width.
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: Handle "Save Ingredient" logic
-                              _saveFoodItem(isIngredient: true);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              textStyle: const TextStyle(fontSize: 16),
-                              // Let's give it a slightly different color
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                              foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                            ),
-                            child: const Text('Save Ingredient'),
-                          ),
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _saveFoodItem(isIngredient: true);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          textStyle: const TextStyle(fontSize: 16),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSecondary,
                         ),
-                        const SizedBox(width: 16), // A spacer between the buttons
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: Handle "Save Food" logic (for full meals)
-                              _saveFoodItem(isIngredient: false);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              textStyle: const TextStyle(fontSize: 16),
-                            ),
-                            child: const Text('Save Food'),
-                          ),
-                        ),
-                      ],
+                        child: const Text('Save Ingredient'),
+                      ),
                     ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _saveFoodItem(isIngredient: false);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          textStyle: const TextStyle(fontSize: 16),
+                        ),
+                        child: const Text('Save Food'),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

@@ -28,7 +28,7 @@ class DatabaseHelper {
     // The 'onCreate' callback is called only the very first time the db is created.
     return await openDatabase(
       path,
-      version: 2,
+      version: 1,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -43,9 +43,9 @@ class DatabaseHelper {
   }
 }
 
-  // This is the callback function that creates our tables.
+  // This is the callback function that creates the table.
   Future<void> _onCreate(Database db, int version) async {
-    // We use 'await' to execute the SQL commands one by one.
+    //use 'await' to execute the SQL commands one by one.
     await db.execute('''
       CREATE TABLE food_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

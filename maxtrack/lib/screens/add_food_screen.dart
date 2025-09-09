@@ -22,6 +22,53 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final _carbsController = TextEditingController();
   final _fatController = TextEditingController();
 
+ Future<void> _showConfirmationDialog({required bool isIngredient}) async {
+    // This is a good practice to ensure we don't try to show a dialog
+    // if the screen is no longer visible.
+    if (!mounted) return;
+
+    final itemType = isIngredient ? 'Ingredient' : 'Food';
+    final message = '${_nameController.text} saved successfully as an $itemType!';
+
+    // This is the Flutter function to show a dialog.
+    await showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Success!'),
+          content: Text(message),
+          actions: <Widget>[
+            // --- The "Add More" Button ---
+            TextButton(
+              child: const Text('Add More'),
+              onPressed: () {
+                // Clear all the text fields for the next entry.
+                _nameController.clear();
+                _caloriesController.clear();
+                _proteinController.clear();
+                _carbsController.clear();
+                _fatController.clear();
+
+                // Close just the dialog.
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            // --- The "Back" Button ---
+            TextButton(
+              child: const Text('Back'),
+              onPressed: () {
+                // Close the dialog AND the AddFoodScreen to go back to the main menu.
+                // We use Navigator.of(context).pop() twice.
+                Navigator.of(dialogContext).pop(); // Close the dialog
+                Navigator.of(context).pop();      // Close the AddFoodScreen
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // This is a good practice to clean up the controllers when the screen is disposed.
   @override
   void dispose() {
@@ -64,8 +111,11 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
     // Optional: Show a confirmation message to the user
     if (mounted) { // 'mounted' checks if the screen is still visible
+    // Determine the message based on the 'isIngredient' flag.
+      final itemType = isIngredient ? 'Ingredient' : 'Food';
+      final message = '${_nameController.text} saved successfully as an $itemType!';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${_nameController.text} saved successfully!')),
+        SnackBar(content: Text(message)),
       );
     }
   }

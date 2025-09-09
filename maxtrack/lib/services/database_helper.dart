@@ -28,10 +28,20 @@ class DatabaseHelper {
     // The 'onCreate' callback is called only the very first time the db is created.
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  if (oldVersion < 2) {
+    // If we are upgrading from a version before 2, add the column.
+    await db.execute('''
+      ALTER TABLE food_items ADD COLUMN is_ingredient INTEGER NOT NULL DEFAULT 0
+    ''');
+  }
+}
 
   // This is the callback function that creates our tables.
   Future<void> _onCreate(Database db, int version) async {

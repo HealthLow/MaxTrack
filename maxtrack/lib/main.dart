@@ -57,7 +57,8 @@ class HomePage extends StatelessWidget {
                   onPressed: () { /* ... */ },
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 50% transparent
-                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    // (255 * 0.5).round() calculates the alpha value for 50% opacity.
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
@@ -75,7 +76,7 @@ class HomePage extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 50% transparent
-                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
@@ -88,7 +89,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () { /* ... */ },
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 50% transparent
-                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
@@ -101,7 +102,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () { /* ... */ },
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 50% transparent
-                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
@@ -121,7 +122,7 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     textStyle: const TextStyle(fontSize: 25),
                     // Let's give it a different color to distinguish it
-                    backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.4).round()),
                     foregroundColor: Theme.of(context).colorScheme.onSecondary,
                   ),
                   child: const Text('Import/Export Profile'),

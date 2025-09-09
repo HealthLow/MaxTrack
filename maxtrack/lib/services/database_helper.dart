@@ -104,4 +104,21 @@ class DatabaseHelper {
       return FoodItem.fromMap(maps[i]);
     });
   }
+
+  Future<int> addLogEntry({
+    required int foodId,
+    required double weightConsumed,
+  }) async {
+    final db = await instance.database;
+
+    final logData = {
+      'food_id': foodId,
+      'weight_consumed_g': weightConsumed,
+      // Store the date and time as an ISO 8601 string, which is a standard format.
+      'date': DateTime.now().toIso8601String(),
+    };
+
+    final id = await db.insert('log_entries', logData);
+    return id;
+  }
 }

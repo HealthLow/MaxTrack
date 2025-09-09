@@ -115,9 +115,25 @@ class HomePage extends StatelessWidget {
                   child: const Text('Food History'),
                 ),
 
+                const SizedBox(height: 16),
+
+                // --- Button 5: View All Foods ---
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Navigate to the Food List screen
+                    _logger.d('View All Foods button pressed!');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    textStyle: const TextStyle(fontSize: 30),
+                    backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
+                  ),
+                  child: const Text('View All Foods'),
+                ),
+
                 const Spacer(), //SPACER WIDGET
 
-                // --- Button 5: Import/Export Profile ---
+                // --- Button 6: Import/Export Profile ---
                 ElevatedButton(
                   onPressed: () {
                     // TODO: Implement Import/Export functionality

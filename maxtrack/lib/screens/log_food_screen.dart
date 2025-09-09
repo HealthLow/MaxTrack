@@ -29,6 +29,84 @@ class _LogFoodScreenState extends State<LogFoodScreen> {
     super.dispose();
   }
 
+   Future<void> _onFoodItemSelected(FoodItem foodItem) async {
+    // A controller for the weight input field in the dialog.
+    final weightController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    // We need to check if the widget is still mounted before showing a dialog.
+    if (!mounted) return;
+
+    // showDialog returns a value when it's popped. We can check if it's 'true'.
+    final bool? didLog = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Log "${foodItem.name}"'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: weightController,
+              autofocus: true, // Automatically focus the field
+              decoration: const InputDecoration(
+                labelText: 'Weight consumed (in grams)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a weight';
+                }
+                if (double.tryParse(value) == null) {
+                  return 'Please enter a valid number';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(false), // Pop with 'false'
+            ),
+            ElevatedButton(
+              child: const Text('Log'),
+              onPressed: () async {
+                // Validate the input.
+                if (formKey.currentState!.validate()) {
+                  final weight = double.parse(weightController.text);
+                  
+                  // Call our database helper to save the log.
+                  await DatabaseHelper.instance.addLogEntry(
+                    foodId: foodItem.id,
+                    weightConsumed: weight,
+                  );
+
+                   if (dialogContext.mounted) {
+                        // Pop the dialog and return 'true' to signal success.
+                        Navigator.of(dialogContext).pop(true);
+                      }
+                  
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // After the dialog closes, check if the food was successfully logged.
+    if (didLog == true && mounted) {
+      // You could show a confirmation SnackBar here if you want.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Successfully logged ${foodItem.name}!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   // This is our new search function
   void _search(String query) {
     // If the user clears the search, clear the results.
@@ -118,7 +196,7 @@ class _LogFoodScreenState extends State<LogFoodScreen> {
                             subtitle: Text('${foodItem.caloriesPer100g.toStringAsFixed(1)} kcal per 100g'),
                             onTap: () {
                               // TODO: Implement the dialog to ask for weight
-                              _logger.i('User selected: ${foodItem.name}');
+                              _onFoodItemSelected(foodItem);
                             },
                           ),
                         );

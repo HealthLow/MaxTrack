@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:maxtrack/services/database_helper.dart'; // We will need this
+import 'package:maxtrack/screens/add_food_screen.dart';
 
 class FoodListScreen extends StatefulWidget {
   const FoodListScreen({super.key});
@@ -89,7 +90,21 @@ class _FoodListScreenState extends State<FoodListScreen> {
                     'C: ${item.carbsPer100g.toStringAsFixed(0)} | '
                     'F: ${item.fatPer100g.toStringAsFixed(0)}'
                   ),
-                  // TODO: Add options to edit or delete items
+                  onTap: () {
+                   Navigator.push(
+                     context,
+                      MaterialPageRoute(
+                        // Pass the selected 'item' to the AddFoodScreen
+                        builder: (context) => AddFoodScreen(foodItem: item),
+                      ),
+                    ).then((_) {
+                     // This code runs when we come BACK from the AddFoodScreen.
+                     // We refresh the list to see the updated data.
+                    setState(() {
+                      _foodItemsFuture = _loadFoodItems();
+                    });
+                   });
+                 },
                 ),
               );
             },

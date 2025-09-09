@@ -117,8 +117,16 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       'image_path': _imagePath,
     };
 
+    if (widget.foodItem == null) {
+    // We are CREATING a new item
     final id = await db.insert('food_items', foodData);
     _logger.i('Inserted food item with ID: $id and data: $foodData');
+  } else {
+    // We are UPDATING an existing item
+    final id = widget.foodItem!.id;
+    final rowsAffected = await DatabaseHelper.instance.updateFoodItem(id, foodData);
+    _logger.i('Updated food item with ID: $id. Rows affected: $rowsAffected');
+  }
 
     //we now call our dialog function.
     await _showConfirmationDialog(isIngredient: isIngredient);
@@ -219,15 +227,6 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter calories';
-                    }
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(

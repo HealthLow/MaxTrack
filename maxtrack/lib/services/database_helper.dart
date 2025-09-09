@@ -53,6 +53,12 @@ class DatabaseHelper {
     return _database!;
   }
 
+  Future<int> updateFoodItem(int id, Map<String, dynamic> row) async {
+    final db = await instance.database;
+    // The 'where' argument prevents updating all rows in the table.
+    return await db.update('food_items', row, where: 'id = ?', whereArgs: [id]);
+}
+
   Future<Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'mtrack.db');

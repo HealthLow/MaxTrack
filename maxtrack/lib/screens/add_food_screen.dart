@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:maxtrack/services/database_helper.dart';
+import 'dart:io'; // Import for File class
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p; // Use 'as p' to avoid name conflicts
 
 final _logger = Logger();
 
 class AddFoodScreen extends StatefulWidget {
-  const AddFoodScreen({super.key});
+  final FoodItem? foodItem;
+  const AddFoodScreen({super.key, this.foodItem});
 
   @override
   State<AddFoodScreen> createState() => _AddFoodScreenState();
@@ -33,6 +38,65 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     super.dispose();
   }
 
+  String? _imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Check if we are editing an existing item.
+    if (widget.foodItem != null) {
+      final item = widget.foodItem!;
+      // Pre-fill the controllers with the existing data.
+      _nameController.text = item.name;
+      _caloriesController.text = item.caloriesPer100g.toString();
+      _proteinController.text = item.proteinPer100g.toString();
+      _carbsController.text = item.carbsPer100g.toString();
+      _fatController.text = item.fatPer100g.toString();
+      _imagePath = item.imagePath;
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    // Show a dialog to let the user choose between camera and gallery.
+    final source = await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Image Source'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+            child: const Text('Camera'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+            child: const Text('Gallery'),
+          ),
+         ],
+      ),
+    );
+
+    if (source == null) return; // User canceled the dialog
+
+    // Use the image_picker to get the image file.
+     final XFile? pickedFile = await picker.pickImage(source: source);
+
+     if (pickedFile == null) return; // User canceled the picker
+
+     // --- This is the crucial part: Copy the file to a permanent location ---
+     final appDir = await getApplicationDocumentsDirectory();
+     final fileName = p.basename(pickedFile.path); // Get the original file name
+     final savedImage = await File(pickedFile.path).copy('${appDir.path}/$fileName');
+
+     // Update the state to show the preview.
+     setState(() {
+       _imagePath = savedImage.path;
+     });
+
+     _logger.d('Image picked and saved to: $_imagePath');
+  }
+
   Future<void> _saveFoodItem({required bool isIngredient}) async {
     // First, validate the form.
     final isValid = _formKey.currentState!.validate();
@@ -50,6 +114,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       'carbs_per_100g': double.tryParse(_carbsController.text) ?? 0.0,
       'fat_per_100g': double.tryParse(_fatController.text) ?? 0.0,
       'is_ingredient': isIngredient ? 1 : 0,
+      'image_path': _imagePath,
     };
 
     final id = await db.insert('food_items', foodData);
@@ -108,6 +173,31 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
             key: _formKey,
             child: Column(
               children: [
+                // This is a placeholder for the image preview.
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  // If an image has been picked, display it. Otherwise, show an icon.
+                  child: _imagePath != null
+                      // Image.file is used to display an image from a local file path.
+                      ? Image.file(File(_imagePath!), fit: BoxFit.cover)
+                      : const Center(child: Icon(Icons.camera_alt, size: 50)),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement the image picking logic
+                    _pickImage();
+                  },
+                  icon: const Icon(Icons.add_a_photo),
+                  label: const Text('Add Photo'),
+                ),
+                const SizedBox(height: 24),
+
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(

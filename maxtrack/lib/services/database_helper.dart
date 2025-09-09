@@ -12,6 +12,7 @@ class FoodItem {
   final double carbsPer100g;
   final double fatPer100g;
   final int isIngredient; // 0 for food, 1 for ingredient
+  final String? imagePath;
 
   FoodItem({
     required this.id,
@@ -21,6 +22,7 @@ class FoodItem {
     required this.carbsPer100g,
     required this.fatPer100g,
     required this.isIngredient,
+    this.imagePath,
   });
 
   // Helper constructor to create a FoodItem from a database map.
@@ -33,6 +35,7 @@ class FoodItem {
       carbsPer100g: map['carbs_per_100g'],
       fatPer100g: map['fat_per_100g'],
       isIngredient: map['is_ingredient'],
+      imagePath: map['image_path'],
     );
   }
 }
@@ -120,5 +123,20 @@ class DatabaseHelper {
 
     final id = await db.insert('log_entries', logData);
     return id;
+  }
+
+  Future<List<FoodItem>> getAllFoodItems() async {
+    final db = await instance.database;
+
+    // Query the table for all The Food Items, ordered by name.
+    final List<Map<String, dynamic>> maps = await db.query(
+      'food_items',
+      orderBy: 'name ASC', // Sort them alphabetically
+    );
+
+    // Convert the List<Map<String, dynamic>> into a List<FoodItem>.
+    return List.generate(maps.length, (i) {
+      return FoodItem.fromMap(maps[i]);
+    });
   }
 }

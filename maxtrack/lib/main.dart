@@ -3,6 +3,7 @@ import 'package:maxtrack/services/database_helper.dart';
 import 'package:maxtrack/screens/add_food_screen.dart';
 import 'package:maxtrack/screens/log_food_screen.dart';
 import 'package:logger/logger.dart';
+import 'package:maxtrack/screens/food_list_screen.dart';
 
 //main() function
 Future<void> main() async {
@@ -65,7 +66,7 @@ class HomePage extends StatelessWidget {
                     // Get the primary color from the theme and make it x% transparent
                     // (255 * 0.5).round() calculates the alpha value for 50% opacity.
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
                   child: const Text('Log Food'),
@@ -83,7 +84,7 @@ class HomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 10% transparent
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
                   child: const Text('Add New Food'),
@@ -96,7 +97,7 @@ class HomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 10% transparent
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
                   child: const Text('Set Diet'),
@@ -109,7 +110,7 @@ class HomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     // Get the primary color from the theme and make it 10% transparent
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 30),
                   ),
                   child: const Text('Food History'),
@@ -120,11 +121,14 @@ class HomePage extends StatelessWidget {
                 // --- Button 5: View All Foods ---
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: Navigate to the Food List screen
-                    _logger.d('View All Foods button pressed!');
+                    // Navigate to the Food List screen
+                    Navigator.push(
+                     context,
+                      MaterialPageRoute(builder: (context) => const FoodListScreen()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 30),
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).round()),
                   ),
@@ -140,7 +144,7 @@ class HomePage extends StatelessWidget {
                     _logger.d('Import/Export button pressed!');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: const TextStyle(fontSize: 25),
                     //different color to distinguish it
                     backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.4).round()),
